@@ -229,7 +229,7 @@
                                                                         align="center">
 
                                                                         <img align="center" border="0"
-                                                                            src="{{ $message->embed(public_path('/assets/img/images/image-3.png')) }}"
+                                                                            src="{{$message->embed(public_path('/assets/img/images/DA-LOGO-1024x1024.png'))}}"
                                                                             alt="Calendar" title="Calendar"
                                                                             style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 25%;max-width: 145px;"
                                                                             width="145" />
@@ -255,7 +255,7 @@
                                                                 <p style="font-size: 14px; line-height: 140%;">
                                                                     <strong><span
                                                                             style="font-size: 24px; line-height: 33.6px;"><span
-                                                                                style="color: #000000; font-size: 24px; line-height: 33.6px;">Interventions Management Platform</span><span></strong>
+                                                                                style="color: #000000; font-size: 24px; line-height: 33.6px;">UP-AIMS</span><span></strong>
                                                                 </p>
                                                             </div>
 
@@ -460,10 +460,8 @@
                                                                 </span>
                                                               </p>
                                                               <p style="font-size: 14px; line-height: 140%;">
-                                                                <span style="font-size: 16px; line-height: 22.4px;">
-                                                                    @foreach ($user_data['role'] as $role)
-                                                                    <strong>{{$role}}</strong>
-                                                                    @endforeach
+                                                                <span style="font-size: 16px; line-height: 22.4px;">      
+                                                                    <strong>{{$user_data['role']}}</strong>
                                                                 </span>
                                                               </p>
                                                             </div>
@@ -616,7 +614,7 @@
                                                                     </tr>
                                                                 </table>   
                                                                 <br />
-                                                                Thank you for using Interventions Management Platform!
+                                                                Thank you for using UP-AIMS!
                                                             </h4>
 
                                                         </td>
@@ -731,7 +729,7 @@
 
                                                             <div
                                                                 style="color: #646464; line-height: 140%; text-align: center; word-wrap: break-word;">
-                                                                <p style="font-size: 14px; line-height: 140%;">&copy; 2021, Department of Agriculture</p>
+                                                                <p style="font-size: 14px; line-height: 140%;">&copy; 2022, Department of Agriculture</p>
                                                             </div>
 
                                                         </td>

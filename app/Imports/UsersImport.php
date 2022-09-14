@@ -12,19 +12,12 @@ use Illuminate\Support\Str;
 class UsersImport implements ToCollection,WithStartRow
 {   
 
-    protected $region;
-    protected $program_id;
+  
     private $inserted_count = 0;
     private $total_rows = 0;
     private $test_data = [];
     private $error_data = [];
 
-    public function __construct($region, $program_id){
-
-        $this->region = $region;
-        $this->program_id = $program_id;
-
-    }
     
 
     /**
@@ -40,31 +33,15 @@ class UsersImport implements ToCollection,WithStartRow
         try{
 
 
-        $rows_inserted = 0;
-        $region = $this->region;
-        $program_id = $this->program_id;
+        $rows_inserted = 0;     
         $error_data = [];
 
-
+        
+        if(count($row) > 0){
         foreach($row as $key => $item){
-            $first_name   = $item[0];
-            $middle_name  = $item[1];
-            $last_name    = $item[2];
-            $ext_name     = $item[3];
-            $role         = $item[4];            
-            $agency       = 1;
-            $email        = $item[6];
-            $contact      = $item[7];
-            // $province     = $item[8];
-            // $municipality = $item[9];
-            // $barangay     = $item[10];
-    
-            $geo_map     =  db::table('geo_map')
-                                // ->where('prov_name',$province)
-                                // ->where('mun_name',$municipality)
-                                // ->where('bgy_name',$barangay)
-                                ->where('reg_code',$region)
-                                ->first();
+
+            $email        = trim($item[0]);
+ 
 
 
 
@@ -74,64 +51,62 @@ class UsersImport implements ToCollection,WithStartRow
        
             if(
                  $check_email->isEmpty() 
-                && (Str::contains(strtolower($email),'@gmail.com') || Str::contains(strtolower($email),'@yahoo.com') || Str::contains(strtolower($email),'@da.gov.ph'))                                                
-                && $first_name   != '' 
-                && $last_name    != ''
-                && $role         != ''
-                && $agency       != ''
+                && (Str::contains(strtolower($email),'@gmail.com') || Str::contains(strtolower($email),'@yahoo.com') || Str::contains(strtolower($email),'@da.gov.ph'))                                                             
                 && $email        != ''
-                && $contact      != ''
-                && $geo_map
-                 
+              
                 ){
 
-                $user_id        = Uuid::uuid4();
+              
+                $result = '';
+                $user_id = Uuid::uuid4();
                 
-                $random_password = Str::random(4);
-
-
-                $get_role = db::table('roles')->where('role',$role)->first();
-
-                db::transaction(function() use (&$error_data,&$rows_inserted,$user_id,$agency,$email,$random_password,$region,$program_id,$geo_map,$first_name,$middle_name,$last_name,$ext_name,$contact,$get_role){
-
-                  $insert_user =   db::table('users')
-                    ->insert([
-                        'user_id'  => $user_id,
-                        'agency'  => $agency,
-                        'agency_loc'  => 'RFO',
-                        'username'  => $email,
-                        'password'  => bcrypt($random_password),
-                        'email'  => $email,
-                        'geo_code'  => $geo_map->geo_code,
-                        'reg' =>$region,
-                        // 'prov' =>$geo_map->prov_code,
-                        // 'mun' =>$geo_map->mun_code,
-                        // 'bgy' =>$geo_map->bgy_code,
-                        'first_name' => $first_name,
-                        'middle_name' => $middle_name,
-                        'last_name' => $last_name,
-                        'ext_name' => $ext_name,
-                        'contact_no' => $contact,
-                    ]);
-
-
-
-                    $insert_program_permissions = db::table('program_permissions')->insert([
-                        "role_id" =>$get_role->role_id,
-                        "program_id" => $program_id,
-                        "user_id" => $user_id,                
-                    ]);
-
-                    if($insert_program_permissions && $insert_user){
-                        
-                        Mail::send('UserManagement::user-account', ["username" => $email,"password" => $random_password,"role" => $get_role->role], function ($message) use ($email, $random_password) {
-                            $message->to($email)->subject('User Account Credentials');                
-                        });
-                        // count row inserted
-                        ++$rows_inserted;
-                    }
+                $base64_user_id = base64_encode($user_id);
+                $url =  url('/user/account-creation/'.$base64_user_id);   
+                $role = 3;
+        
+                try{
+                        DB::beginTransaction();
+                
+                        $create_account = db::table('users')->insert([
+                            'user_id'  => $user_id,
+                            'email'    => $email,
+                            'username' => $email,
+                            'status'   => '3'
+                        ]);
                     
-                });
+                        $create_user_access = db::table('user_access')                
+                        ->insert([
+                            'user_id'=>$user_id,
+                            "role_id" => $role,                      
+                        ]);
+                        
+                        
+                    
+                            Mail::send('UserManagement::account-creation-email', ["link" => $url], function ($message) use ($email) {
+                                $message->to($email)->subject('User Account Creation Link');                
+                            }); 
+                            if(count(Mail::failures()) == 0 ){
+                                if($create_account && $create_user_access ){
+                                    $result = ['message'=>'Successfully send a link.','result'=>'true'];
+                                    $this->message = $result;
+                                    $rows_inserted++;
+                                } else{
+                                    $result = ['message'=>'Failed to send a link.','result'=>'false'];
+                                    $this->message = $result;
+                                }  
+                            }else{
+                                $result = ['message'=>'Failed to send a link.','result'=>'false'];
+                                $this->message = $result;
+                            }
+                        DB::commit();
+                        
+                    }catch(\Exception $e){
+                        
+                        DB::rollBack();
+                        $result = ['message'=>'Failed to send a link.','result'=>'error','err'=>$e->getMessage()];
+                        $this->message = $result;
+                        
+                    }
                                
             }else{  
 
@@ -150,44 +125,36 @@ class UsersImport implements ToCollection,WithStartRow
                 }
 
 
+        
+
+                if($email == ''){
+                    $error_remarks = ($error_remarks == ''  ? 'No email or contact number' : $error_remarks.','.'No email');
+                }
+
+
+                $data = [           
+                    'email'  => $email ,
+                    'remarks'=> $error_remarks ,
+                                                    
              
-                if($first_name == '' || $last_name == ''){
-                    $error_remarks = ($error_remarks == ''  ? 'Incomplete Name' : $error_remarks.','.'Incomplete Name');
-                }                
-
-                if($agency == '' || $role == ''){
-                    $error_remarks = ($error_remarks == ''  ? 'No role indicated or agency' : $error_remarks.','.'No role indicated or agency');
-                }
-
-                if($email == '' || $contact == ''){
-                    $error_remarks = ($error_remarks == ''  ? 'No email or contact number' : $error_remarks.','.'No email or contact number');
-                }
-
-                if(!$geo_map){
-                    $error_remarks = ($error_remarks == ''  ? 'Wrong address' : $error_remarks.','.'Wrong address');
-                }
-
-                $data = [
-                    'first_name'          => $first_name,                    
-                    'last_name'           => $last_name,
-                    'email'               => $email ,
-                    'contact'             => $contact ,
-                    'agency'              => db::table('agency')->where('agency_id',$agency)->first()->agency_name,                    
-                    // 'barangay'            => $barangay,
-                    // 'municipality'        => $municipality,
-                    // 'province'            => $province,                            
-                    'region'              => db::table('geo_map')->where('reg_code',$region)->first()->reg_name,
-                    'remarks'             => $error_remarks
                 ];
 
                 array_push($error_data,$data);            
+
+                $result = ['message'=>'Failed.','result'=>'true'];
+                $this->message = $result;
             }
         }
+    }else{
+        
+        $result = ['message'=>'Failed.','result'=>'true'];
+        $this->message = $result;
+    }
 
         $this->inserted_count = $rows_inserted;   
         $this->total_rows = $row->count();
         $this->error_data = $error_data;
-        $this->message = 'true';
+     
 
     }catch(\Exception $e){
 
@@ -198,7 +165,7 @@ class UsersImport implements ToCollection,WithStartRow
 
     public function startRow():int
     {
-        return 6;
+        return 2;
     }
 
     public function getRowCount(){

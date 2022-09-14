@@ -235,7 +235,7 @@
                                                                 <p style="font-size: 14px; line-height: 140%;">
                                                                     <strong><span
                                                                             style="font-size: 24px; line-height: 33.6px;"><span
-                                                                                style="color: #000000; font-size: 24px; line-height: 33.6px;">Interventions Management Platform</span><span></strong>
+                                                                                style="color: #000000; font-size: 24px; line-height: 33.6px;">UP-AIMS</span><span></strong>
                                                                 </p>
                                                             </div>
 
@@ -446,9 +446,7 @@
                                                             </p>
                                                             <p style="font-size: 14px; line-height: 140%;">
                                                               <span style="font-size: 16px; line-height: 22.4px;">
-                                                                @foreach ($user_data['role'] as $role)
-                                                                    <strong>{{$role}}</strong>
-                                                                @endforeach
+                                                                <strong>{{$user_data['role']}}</strong>
                                                               </span>
                                                             </p>
                                                           </div>
@@ -835,7 +833,7 @@
 
                                                             <div
                                                                 style="color: #646464; line-height: 140%; text-align: center; word-wrap: break-word;">
-                                                                <p style="font-size: 14px; line-height: 140%;">&copy; 2021, Department of Agriculture</p>
+                                                                <p style="font-size: 14px; line-height: 140%;">&copy; 2022, Department of Agriculture</p>
                                                             </div>
 
                                                         </td>

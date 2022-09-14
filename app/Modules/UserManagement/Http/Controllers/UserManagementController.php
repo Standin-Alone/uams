@@ -13,6 +13,7 @@ use App\Imports\UsersImport;
 use App\Modules\UserManagement\Models\UserManagement;
 use Yajra\DataTables\Facades\DataTables;
 use App\Modules\Login\Models\OTP;
+
 class UserManagementController extends Controller
 {
     public function __construct(Request $request)
@@ -22,6 +23,7 @@ class UserManagementController extends Controller
         $this->OTPModel = new OTP;
 
         // $this->middleware('session.module');
+        // $this->middleware('session.notifications');
     }
     /**
      * Display the module welcome screen
@@ -31,53 +33,107 @@ class UserManagementController extends Controller
     public function index()
     {   
         $get_regions = db::table('geo_map')->select('reg_code','reg_name')->where('reg_code','!=','13')->distinct()->get();
-        $get_agency = db::table('agency')->get();
-        $get_roles = db::table('roles')->where('rfo_use','0')->get();
-        
-        
+        $get_roles = [];
 
+        if(session('role_id') == 1){
+            $get_roles = db::table('roles')->get();
+        }else{
+            $get_roles = db::table('roles')->where('rfo_use','0')->get();
+        }
         
-        return view("UserManagement::index",compact('get_regions','get_agency','get_roles'));
+        $get_filter_roles = db::table('roles')->get();
+    
+        
+        $computeUsersPerRegions = db::select('select total as sub_total, REG_NAME, sum(total) as total,reg from (SELECT reg,COUNT(*) as total FROM uams_db.users as u
+                                                    group by reg) as a 
+                                                    left join  uams_db.geo_map as g on g.reg_code = a.reg
+                                                    where reg is not null
+                                                    group by reg
+                                        ');
+     
+                            
+        
+        return view("UserManagement::index",compact('get_regions','get_roles','get_filter_roles','computeUsersPerRegions'));
     }
 
 
     public function show(){
+
+
         $get_users =  db::table('users as u')
                             ->select(
                                 db::raw("CONCAT(first_name,' ',last_name) as full_name"),
                                 'role',                                
-                                'pp.id as id',
+                                'pp.user_access_id as id',
                                 'u.user_id',
                                 'u.status',
                                 'email',
-                                'contact_no',
-                                'agency_shortname as agency',                                
+                                'contact_no',                                                              
                                 'reg_name',
                                 'prov_name',
                                 'mun_name',
                                 'bgy_name',
                                 DB::raw('CAST( reg as char(50)) as reg'),
-                                DB::raw('CAST( reg as char(50)) as prov'),
-                                DB::raw('CAST( reg as char(50)) as mun'),
-                                DB::raw('CAST( reg as char(50)) as bgy'),
+                                DB::raw('CAST( prov as char(50)) as prov'),
+                                DB::raw('CAST( mun as char(50)) as mun'),
+                                DB::raw('CAST( bgy as char(50)) as bgy'),
                                 'r.role_id',
-                                'agency_loc',
-                                'agency_id',
+                                'u.is_created',
+                
+                                'u.date_created'
                                 
 
                                 )
-                            ->leftjoin('program_permissions as pp', 'u.user_id', 'pp.user_id')                            
-                            ->join('roles as r', 'r.role_id' , 'pp.role_id')                            
-                            ->Join('geo_map as g', 'u.reg', '=', 'g.reg_code')
-                            ->Join('geo_region as gr', 'gr.code_reg', '=', 'g.reg_code')
-                            ->join('agency as a', 'a.agency_id' , 'u.agency')
+                            ->leftjoin('user_access as pp', 'u.user_id', 'pp.user_id')                            
+                            ->leftjoin('roles as r', 'r.role_id' , 'pp.role_id')                            
+                            ->leftjoin('geo_map as g', 'g.reg_code', 'u.reg')                                                        
                             ->groupBy('user_id','reg_code')                            
                             ->get();
-
+        
         return datatables($get_users)->toJson();
     }
     
 
+
+
+    public function search_user(){
+ 
+        $search = request('search');
+        $get_users =  db::table('users as u')
+                            ->select(
+                                db::raw("CONCAT(first_name,' ',last_name) as full_name"),
+                                'role',                                
+                                'pp.user_access_id as id',
+                                'u.user_id',
+                                'u.status',
+                                'email',
+                                'contact_no',                                                              
+                                'reg_name',
+                                'prov_name',
+                                'mun_name',
+                                'bgy_name',
+                                DB::raw('CAST( reg as char(50)) as reg'),
+                                DB::raw('CAST( prov as char(50)) as prov'),
+                                DB::raw('CAST( mun as char(50)) as mun'),
+                                DB::raw('CAST( bgy as char(50)) as bgy'),
+                                'r.role_id',
+                                'u.is_created',
+                
+                                'u.date_created'
+                                
+
+                                )
+                            ->leftjoin('user_access as pp', 'u.user_id', 'pp.user_id')                            
+                            ->leftjoin('roles as r', 'r.role_id' , 'pp.role_id')                            
+                            ->leftjoin('geo_map as g', 'g.reg_code', 'u.reg')                                                        
+                            ->where('email', 'like', "%{$search}%")
+                            ->orWhere('first_name', 'like', "%{$search}%")                            
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->groupBy('user_id','reg_code')                            
+                            ->get();
+        
+        return datatables($get_users)->toJson();
+    }
 
 
     public function destroy($id){
@@ -112,10 +168,11 @@ class UserManagementController extends Controller
     }
 
 
-    public function filter_municipality($province_code)
+    public function filter_municipality($region_code,$province_code)
     {       
         $get_municipality = db::table('geo_map')
                             ->select('mun_code','mun_name')
+                            ->where('reg_code',$region_code)
                             ->where('prov_code',$province_code)
                             ->distinct()->get();
         return json_encode($get_municipality);
@@ -168,7 +225,8 @@ class UserManagementController extends Controller
             $contact        = request('contact');        
             $agency_loc     = request('agency_loc');
             $role           = request('role');
-            $agency         = request('agency');            
+            $agency         = request('agency');
+            $program        = request('program');
             $region         = request('region');
             $province       = request('province');
             $municipality   = request('municipality');
@@ -202,7 +260,7 @@ class UserManagementController extends Controller
                 ]);
             
             
-                db::table('program_permissions')->insert([
+                db::table('user_access')->insert([
                     "role_id" => $role,                    
                     "user_id" => $user_id,                
                 ]);
@@ -250,13 +308,14 @@ class UserManagementController extends Controller
                             ->where('user_id',$id)
                             ->update([
                                 'email'      => $email,
-                                'contact_no' => $contact,    
-                                'agency_loc' => $agency_loc,   
-                                'agency' => $agency,                                
+                                'contact_no' => $contact,                                    
                                 'reg'        => $region,                                
+                                'prov'       => $province,                                
+                                'mun'        => $municipality,                                
+                                'bgy'        => $barangay,                                
                             ]);
 
-            $update_role = db::table('program_permissions')
+            $update_role = db::table('user_access')
                         ->where('user_id',$id)
                         ->update([
                             'role_id' => $role_id                            
@@ -267,11 +326,16 @@ class UserManagementController extends Controller
 
 
                 if($old_email != $email){
-                    
+
                     Mail::send('UserManagement::update-email', ["username" => $email,"role" => $role,"old_email" => $old_email], function ($message) use ($email) {
                         $message->to($email)->subject('Updated User Account');                
                     });                    
                 }
+
+                 // AUDIT TRAIL
+                 $last_name = session('last_name');
+                 $action = "{$last_name} has updated the info of user {$email}.";
+                 Controller::audit_trail($action);
 
                 return 'true';
             }else{
@@ -284,11 +348,11 @@ class UserManagementController extends Controller
     }
 
     public function import_file(){
-        $region = request('import_region');
-        $program = request('import_program');
+        
+        
         $file = request()->file('file');
 
-        $user_import = new UsersImport($region,$program);
+        $user_import = new UsersImport();
         Excel::import($user_import, $file);
         
 
@@ -303,10 +367,10 @@ class UserManagementController extends Controller
 
         $user_id = $request->select_user;
         $role_id = $request->select_role;
-        
+        $program_id = $request->select_program;
         $status = 1;
 
-        $UserManagementModel->add_new_user_role($user_id, $role_id,$status);
+        $UserManagementModel->add_new_user_role($user_id, $role_id, $program_id, $status);
 
         $success_response = ["success" => true, "message" => "SAVED SUCCESSFULL!"];
         return response()->json($success_response, 200);
@@ -315,7 +379,7 @@ class UserManagementController extends Controller
     public function list_of_users(){
         $users = $this->UserManagementModel->get_user();
 
-
+        $programs = $this->UserManagementModel->get_program();
 
         $roles = $this->UserManagementModel->get_role();
 
@@ -341,7 +405,7 @@ class UserManagementController extends Controller
             ->make(true);
         }
         // return view("UserManagement::list-of-users", ['users' => $users, 'roles' => $roles, 'programs' => $programs, 'region' => $region, 'agency' => $agency, 'action' => $action]); 
-        return view("UserManagement::list-of-users")->with('users', $users)->with('roles', $roles)->with('region', $region)->with('agency', $agency)->with('action', $action); 
+        return view("UserManagement::list-of-users")->with('users', $users)->with('roles', $roles)->with('programs', $programs)->with('region', $region)->with('agency', $agency)->with('action', $action); 
     }
 
     public function user_details($uuid){        
@@ -396,6 +460,48 @@ class UserManagementController extends Controller
             ->make(true);
         }
         return view("UserManagement::list-of-users"); 
+    }
+
+
+    public function download(){
+        return response()->download('public/user-template.xlsx');
+    }
+
+
+    
+    public function filter_region($region_code){
+        $get_users =  db::table('users as u')
+                            ->select(
+                                db::raw("CONCAT(first_name,' ',last_name) as full_name"),
+                                'role',                                
+                                'pp.user_access_id as id',
+                                'u.user_id',
+                                'u.status',
+                                'email',
+                                'contact_no',                                                              
+                                'reg_name',
+                                'prov_name',
+                                'mun_name',
+                                'bgy_name',
+                                DB::raw('CAST( reg as char(50)) as reg'),
+                                DB::raw('CAST( prov as char(50)) as prov'),
+                                DB::raw('CAST( mun as char(50)) as mun'),
+                                DB::raw('CAST( bgy as char(50)) as bgy'),
+                                'r.role_id',
+                                'u.is_created',
+                
+                                'u.date_created'
+                                
+
+                                )
+                            ->leftjoin('user_access as pp', 'u.user_id', 'pp.user_id')                            
+                            ->leftjoin('roles as r', 'r.role_id' , 'pp.role_id')                            
+                            ->leftjoin('geo_map as g', 'g.reg_code', 'u.reg')                                                        
+                            ->where('reg_code',$region_code)
+                            ->groupBy('user_id','reg_code')                            
+                            ->get();
+                
+        return datatables($get_users)->toJson();
     }
 
     

@@ -11,103 +11,104 @@ class Role_and_Permission extends Model
     use HasFactory;
 
     public function get_user_session($uuid){
-        $query = DB::table('program_permissions as pp')
-                        ->select('r.role_id', 'r.role', 
-                                'u.user_id', 'u.username', 'g.iso_prv',
-                                'u.first_name', 'u.last_name','u.middle_name', 'u.ext_name', 'u.email', 'u.reg', 'u.prov', 'u.mun', 'gr.region', 
-                                'g.reg_name', 'g.prov_name', 'mun_name')
-                        ->leftJoin('roles as r', 'pp.role_id', '=', 'r.role_id')                                                
-                        ->leftJoin('users as u','pp.user_id', '=', 'u.user_id')
-                        ->leftJoin('geo_map as g', 'g.geo_code', '=', 'u.geo_code')
-                        ->leftJoin('geo_region as gr', 'u.reg', '=', 'gr.code_reg')
-                        ->where('pp.status', '=', 1)
-                        ->where('u.user_id', '=', $uuid)
+
+        $query = DB::table('user_access as ua')
+                        ->select('ua.user_id', 
+                                'u.email', 'u.password', 'u.username', 
+                                'u.first_name', 'u.middle_name', 'u.last_name', 'u.ext_name', 'u.status', 'u.reg', 'u.prov', 'u.mun', 'u.bgy', 'u.contact_no',
+                                'r.role', 'r.role_id')
+                        ->leftJoin('users as u', 'u.user_id', '=', 'ua.user_id')
+                        ->leftJoin('roles as r', 'r.role_id', '=', 'ua.role_id')
+                        ->where('ua.user_id', '=', $uuid)
+                        ->where('ua.status', '=', '1')
                         ->get();
 
         return $query;
+
     }
 
-    // Peter: Supplier
-    public function get_supplier($user_id){
-        $getProgramValue = DB::table('programs as p')
-                                ->select(DB::raw("p.program_id,p.title,p.shortname,p.description"))
-                                ->leftjoin('program_permissions as pp','pp.program_id','=','p.program_id')
-                                ->where('pp.user_id',$user_id)
-                                ->get();
 
-        return $getProgramValue;
-    }
+    // // Peter: Supplier
+    // public function get_supplier($user_id){
+    //     $getProgramValue = DB::table('programs as p')
+    //                             ->select(DB::raw("p.program_id,p.title,p.shortname,p.description"))
+    //                             ->leftjoin('user_access as pp','pp.program_id','=','p.program_id')
+    //                             ->where('pp.user_id',$user_id)
+    //                             ->get();
 
-    // Peter: Default Program
-    public function get_default_program($user_id){
-        $getDefaultValue = DB::table('programs as p')
-                                ->select(DB::raw("p.program_id,p.title,p.shortname,p.description"))
-                                ->leftjoin('program_permissions as pp','pp.program_id','=','p.program_id')
-                                ->where('pp.user_id',$user_id)
-                                ->groupBy('p.program_id')
-                                ->orderBy('p.program_id','desc')
-                                ->take(1)
-                                ->get();
+    //     return $getProgramValue;
+    // }
 
-        return $getDefaultValue;
-    }
+    // // Peter: Default Program
+    // public function get_default_program($user_id){
+    //     $getDefaultValue = DB::table('programs as p')
+    //                             ->select(DB::raw("p.program_id,p.title,p.shortname,p.description"))
+    //                             ->leftjoin('user_access as pp','pp.program_id','=','p.program_id')
+    //                             ->where('pp.user_id',$user_id)
+    //                             ->groupBy('p.program_id')
+    //                             ->orderBy('p.program_id','desc')
+    //                             ->take(1)
+    //                             ->get();
 
-    // Peter: Province List
-    public function get_User_Province($user_id){
-        $getUserRegion = DB::table('users as u')
-                    ->select(DB::raw("u.reg"))
-                    ->where('u.user_id',$user_id)
-                    ->get();  
-            $user_reg_code = "";
-            foreach($getUserRegion as $key => $row){
-                $user_reg_code = $row->reg;
-            }    
+    //     return $getDefaultValue;
+    // }
+
+    // // Peter: Province List
+    // public function get_User_Province($user_id){
+    //     $getUserRegion = DB::table('users as u')
+    //                 ->select(DB::raw("u.reg"))
+    //                 ->where('u.user_id',$user_id)
+    //                 ->get();  
+    //         $user_reg_code = "";
+    //         foreach($getUserRegion as $key => $row){
+    //             $user_reg_code = $row->reg;
+    //         }    
                 
-        $getUserProvince = DB::table('geo_map as geo')
-                    ->select(DB::raw("geo.prov_code,geo.prov_name"))   
-                    ->where('geo.reg_code',$user_reg_code)
-                    ->groupBy('geo.prov_code')
-                    ->get();
+    //     $getUserProvince = DB::table('geo_map as geo')
+    //                 ->select(DB::raw("geo.prov_code,geo.prov_name"))   
+    //                 ->where('geo.reg_code',$user_reg_code)
+    //                 ->groupBy('geo.prov_code')
+    //                 ->get();
 
-        return $getUserProvince;
-    }
+    //     return $getUserProvince;
+    // }
 
 
-    // Sir AJ session
-    public function get_reg_and_prov($uuid){
-        $query = DB::table('users as u')
-                        ->select('gr.region', 'g.prov_name', 'g.prov_code')
-                        ->leftJoin('geo_map as g', 'u.reg', '=', 'g.reg_code')
-                        ->leftJoin('geo_region as gr', 'gr.code_reg', '=', 'g.reg_code')
-                        ->where('u.user_id', '=', $uuid)
-                        ->groupBy('gr.region', 'g.prov_name')
-                        ->havingRaw('count(*) > 1')
-                        ->get();
+    // // Sir AJ session
+    // public function get_reg_and_prov($uuid){
+    //     $query = DB::table('users as u')
+    //                     ->select('gr.region', 'g.prov_name', 'g.prov_code')
+    //                     ->leftJoin('geo_map as g', 'u.reg', '=', 'g.reg_code')
+    //                     ->leftJoin('geo_region as gr', 'gr.code_reg', '=', 'g.reg_code')
+    //                     ->where('u.user_id', '=', $uuid)
+    //                     ->groupBy('gr.region', 'g.prov_name')
+    //                     ->havingRaw('count(*) > 1')
+    //                     ->get();
         
-        $data = [];
+    //     $data = [];
 
-        foreach($query as $value){
-            $data[$value->region][$value->prov_code] = $value->prov_name;
-        }
+    //     foreach($query as $value){
+    //         $data[$value->region][$value->prov_code] = $value->prov_name;
+    //     }
 
-        return $data;
-    } 
+    //     return $data;
+    // } 
 
-    // geo_map
-    public function get_region_geo_map($uuid){
-        $query = DB::table('users as u')
-                        ->select('g.reg_name',)
-                        ->leftJoin('geo_map as g', 'u.reg', '=', 'g.reg_code')
-                        ->leftJoin('geo_region as gr', 'gr.code_reg', '=', 'g.reg_code')
-                        ->where('u.user_id', '=', $uuid)
-                        ->groupBy('g.reg_name')
-                        ->get();
+    // // geo_map
+    // public function get_region_geo_map($uuid){
+    //     $query = DB::table('users as u')
+    //                     ->select('g.reg_name',)
+    //                     ->leftJoin('geo_map as g', 'u.reg', '=', 'g.reg_code')
+    //                     ->leftJoin('geo_region as gr', 'gr.code_reg', '=', 'g.reg_code')
+    //                     ->where('u.user_id', '=', $uuid)
+    //                     ->groupBy('g.reg_name')
+    //                     ->get();
 
-        return $query;
-    }
+    //     return $query;
+    // }
 
     public function get_supplier_id($uuid){
-        $query = DB::table('program_permissions as pp')
+        $query = DB::table('user_access as pp')
                         ->leftJoin('supplier as s', 'pp.other_info', '=', 's.supplier_id')
                         ->where('user_id', '=', $uuid)
                         ->pluck('s.supplier_id')
@@ -128,15 +129,15 @@ class Role_and_Permission extends Model
      * example:
      * Program: [Cash and Food, RRP Wet Season, RRP Dry Season]
      */
-    public function get_program_in_program_permission($uuid){
-        $query = DB::table('program_permissions as pp')
-                        ->leftJoin('programs as p', 'pp.program_id', '=', 'p.program_id')
-                        ->where('user_id', '=', $uuid)
-                        ->pluck('p.description')
-                        ->all();
+    // public function get_program_in_program_permission($uuid){
+    //     $query = DB::table('user_access as pp')
+    //                     ->leftJoin('programs as p', 'pp.program_id', '=', 'p.program_id')
+    //                     ->where('user_id', '=', $uuid)
+    //                     ->pluck('p.description')
+    //                     ->all();
 
-        return $query;
-    }
+    //     return $query;
+    // }
 
     /**
      * example:
@@ -144,7 +145,7 @@ class Role_and_Permission extends Model
      * Role: [8, 10]
      */
     public function get_role_in_program_permission($uuid){
-        $query = DB::table('program_permissions')
+        $query = DB::table('user_access')
                     ->where('user_id', '=', $uuid)
                     ->pluck('role_id')
                     ->all();
@@ -169,7 +170,7 @@ class Role_and_Permission extends Model
     }
 
     public function get_program_with_role($uuid){
-        $query = DB::table('program_permissions as pp')
+        $query = DB::table('user_access as pp')
                         ->select('p.title', 'p.program_id', 'p.description','pp.role_id', 'r.role',)
                         ->leftJoin('roles as r', 'pp.role_id', '=', 'r.role_id')
                         ->leftJoin('programs as p', 'pp.program_id', '=', 'p.program_id')

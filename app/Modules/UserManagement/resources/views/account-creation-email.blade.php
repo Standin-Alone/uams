@@ -229,7 +229,7 @@
                                 style="color: #ffffff; line-height: 140%; text-align: center; word-wrap: break-word;">
                                 <p style="font-size: 14px; line-height: 140%;"><strong><span
                                       style="font-size: 24px; line-height: 33.6px;"><span
-                                        style="color: #000000; font-size: 24px; line-height: 33.6px;">Interventions Management Platform</span></span></strong>
+                                        style="color: #000000; font-size: 24px; line-height: 33.6px;">Urban Agriculture Management System</span></span></strong>
                                 </p>
                               </div>
 
@@ -412,7 +412,7 @@
                               <h4
                                 style="margin: 0px; color: #000000; line-height: 140%; text-align: left; word-wrap: break-word; font-weight: normal; font-family: arial,helvetica,sans-serif; font-size: 14px;">
                                                                
-                                Thank you for using Interventions Management Platform!
+                                Thank you for using Urban Agriculture Management System!
                               </h4>
                               <br>
                             </td>

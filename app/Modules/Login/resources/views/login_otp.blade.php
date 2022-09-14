@@ -1,5 +1,5 @@
 @extends('Login::layouts.template')
-@section('title', "Interventions Management Platform | OTP")
+@section('title', "UP-AIMS | OTP")
 
 @section('content')
  	<!-- begin #page-loader -->
@@ -12,7 +12,14 @@
          <div class="login login-with-news-feed">
              <!-- begin news-feed -->
              <div class="news-feed">
-                 <div class="news-image" style="background-image: url({{url('assets/img/images/IMP.jpg')}})"></div>
+                {{-- background-image: url(assets/img/cover/profile-cover.jpg) --}}
+                 <div class="news-image" style="background-image: url({{url('assets/img/cover/profile-cover.jpg')}})"></div>
+                 <div class="news-caption">
+                    <h4 class="caption-title"><b style="text-shadow: 4px 4px #000;">Urban and Peri-urban Agriculture Information Management System</b> </h4>
+                    <p>
+                        
+                    </p>
+                </div>
              </div>
              <!-- end news-feed -->
              <!-- begin right-content -->
@@ -20,7 +27,7 @@
                  <!-- begin login-header -->
                  <div class="login-header">
                      <div class="brand">
-                        <img src="{{url('assets/img/images/DA-LOGO-1024x1024.png')}}" width="70" height="70" style="display: inline-block"  /> <b>Interventions Management Platform</b>
+                        <img src="{{url('assets/img/images/DA-LOGO-1024x1024.png')}}" width="70" height="70" style="display: inline-block"  /> <b>UP-AIMS</b>
                      </div>
                      <div class="icon">
                         <i class="fa fa-sign-in"></i>
@@ -62,7 +69,7 @@
                     <br>
                     <hr />
                     <p class="text-center text-grey-darker">
-                        &copy; Department of Agriculture 2021 
+                        &copy; Department of Agriculture 2022 
                     </p>
                 </div>
                  <!-- end login-content -->

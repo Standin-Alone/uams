@@ -4,8 +4,11 @@
 
 
 Route::group([],function(){
-    Route::get('/user','UserManagementController@index')->name('user.index');
+    Route::get('/user','UserManagementController@index')->name('user.index')->middleware('ensure.user.has.role');
     Route::get('/user/show','UserManagementController@show')->name('user.show');
+    Route::get('/user/download','UserManagementController@download')->name('download-template');
+    Route::post('/user/search-user','UserManagementController@search_user')->name('search-user');
+    Route::get('/user/filter-region/{region_code}','UserManagementController@filter_region')->name('filter-region');
     Route::get('/user/destroy/{id}','UserManagementController@destroy')->name('user.destroy');
     Route::get('/user/block/{id}','UserManagementController@block')->name('user.block');
     Route::get('/user-email','UserManagementController@email');
@@ -17,7 +20,7 @@ Route::group([],function(){
     Route::get('/user/check-email','UserManagementController@checkEmail')->name('check-email');
     Route::get('/user/filter-role/{agency_loc}','UserManagementController@filter_role')->name('filter-role');
     Route::get('/user/filter-province/{region_code}','UserManagementController@filter_province')->name('filter-province');
-    Route::get('/user/filter-municipality/{province_code}','UserManagementController@filter_municipality')->name('filter-municipality');
+    Route::get('/user/filter-municipality/{region_code}/{province_code}','UserManagementController@filter_municipality')->name('filter-municipality');
     Route::get('/user/filter-barangay/{region_code}/{province_code}/{municipality_code}','UserManagementController@filter_barangay')->name('filter-barangay');
 
     Route::get('/user/list-of-users','UserManagementController@list_of_users')->name('list-of-users.index');
@@ -31,9 +34,18 @@ Route::group([],function(){
 
     Route::get('/account-creation/filter-role/{agency_loc}','AccountCreationController@filter_role')->name('ac-filter-role');
     Route::get('/account-creation/filter-province/{region_code}','AccountCreationController@filter_province')->name('ac-filter-province');
-    Route::get('/account-creation/filter-municipality/{province_code}','AccountCreationController@filter_municipality')->name('ac-filter-municipality');
+    Route::get('/account-creation/filter-municipality/{region_code}/{province_code}','AccountCreationController@filter_municipality')->name('ac-filter-municipality');
     Route::get('/account-creation/filter-barangay/{region_code}/{province_code}/{municipality_code}','AccountCreationController@filter_barangay')->name('ac-filter-barangay');
     Route::post('/account-creation/add','AccountCreationController@store')->name('create-account');
+    Route::get('/privacy-policy','AccountCreationController@privacy_policy')->name('privacy-policy');
+    Route::post('/send-recovery-link','AccountCreationController@send_recovery_link')->name('send-recovery-link');
+    
+
+    // dashboard
+
+    Route::get('/user-dashboard','UserDashboardController@index')->name('user-dashboard');
+
+    
 });
 
 

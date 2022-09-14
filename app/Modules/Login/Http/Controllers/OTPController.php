@@ -42,6 +42,7 @@ class OTPController extends Controller
                 return response()->json( $error_response, 302); 
             }
             elseif($uOTP->otp == $input_otp){
+
                 // Update OTP status "1" to status "0";
                 $this->otpModel->update_otp_status_to_active($get_uuid);
 
@@ -53,39 +54,15 @@ class OTPController extends Controller
                     Session::put(['role_no_sets' => $role_no_sets]);
                 // ==========  array of role_no of user(uuid)  ==========
 
-                    // USER PROVINCE LIST
-                    $user_prov_list = [];
-
-                    // Query
-                    $getUserProvince = $this->roles_and_perms->get_User_Province($uOTP->user_id);
-                    
-                    foreach ($getUserProvince as $key => $value) {
-                            
-                            $user_prov_list['prov_name'] = $value->prov_name;
-                            $user_prov_list['prov_code'] = $value->prov_code;
-                    }
-
-                    Session::put(['user_prov_list'=>$user_prov_list]); 
-                // ==========  Peter Session  ==========
-   
-                //  ==========  session for list of provinces under base on region
-                $provinces_on_region = $this->roles_and_perms->get_reg_and_prov($get_uuid);
-               
-                Session::put(['provinces_on_region' => $provinces_on_region]);
-                //  ==========  session for list of provinces under base on region
-
-                
-                // ==========  group by program with role  ==========  
-
-                $get_reg = $this->roles_and_perms->get_region_geo_map($get_uuid);
-                Session::put(['reg_reg' => $get_reg]);
+                // get_region_geo_map
+                // $get_reg = $this->roles_and_perms->get_region_geo_map($get_uuid);
+                // Session::put(['reg_reg' => $get_reg]);
 
                 $permission_id = $this->roles_and_perms->get_sys_perm();
                
                 $role_name_sets = [];
                 
                 
-
                 foreach($users as $user){
                     Session::put('uuid', $user->user_id);
                     Session::put('email', $user->email);
@@ -94,22 +71,7 @@ class OTPController extends Controller
                     Session::put('last_name', $user->last_name);
                     Session::put('ext_name', $user->ext_name);
                     Session::put('username', $user->username);
-
-                    // get region name from "geo_region table"
-                    Session::put('user_region_name', $user->region);
-                    Session::put('geo_region_name', $user->reg_name);
-
-                    // Region No., Province No., and Municipality No.
-                    Session::put('region', $user->reg);
-                    Session::put('province', $user->prov);
-                    Session::put('municipality', $user->mun);
-
-                    // Region name, Province name, and Municipality name
-                    Session::put('region_name', $user->reg_name);
-                    Session::put('province_name', $user->prov_name);
-                    Session::put('municipality_name', $user->mun_name);
-
-                    
+                    Session::put('contact_no', $user->contact_no);
 
                     // role
                     Session::put('role_id', $user->role_id);
@@ -120,10 +82,9 @@ class OTPController extends Controller
 
                     // PETER_DEV - ADDITIONAL SESSION
                     Session::put(['user_id'=>$user->user_id]); 
-                    Session::put(['user_prv_code'=>$user->iso_prv]);                    
+                    // Session::put(['user_prv_code'=>$user->iso_prv]);                    
                     Session::put(['user_fullname'=>$user->first_name.' '.$user->middle_name.' '.$user->last_name.' '.$user->ext_name]);
                     Session::put(['reg_code'=>$user->reg]);                      
-                   
                 }
 
                 // array of role name
@@ -170,11 +131,8 @@ class OTPController extends Controller
  
         $users = $this->otpModel->get_user_uuid($get_uuid);
 
-        $role_sets = [];
-
         foreach($users as $user){
-            $role = $user->role;
-            $role_sets[] = $role;
+            $role_sets = $user->role;
             $resend_otp = $this->otpModel->generate_otp($user->user_id);
             $otp = $resend_otp['otp'];
             $date_created = $resend_otp['date_created']->toDateTimeString();
@@ -192,7 +150,7 @@ class OTPController extends Controller
                                         $date_created
                                     );
 
-        $reset_otp_mail_success = ['success'=>true, 'message' => 'We send new OTP Pin through your email: "'.$user->email.'"', 'auth'=>false];
+        $reset_otp_mail_success = ['success'=>true, 'message' => 'OTP Pin has been sent to your email: "'.$user->email.'"', 'auth'=>false];
         return response()->json($reset_otp_mail_success, 200);
     }
 }

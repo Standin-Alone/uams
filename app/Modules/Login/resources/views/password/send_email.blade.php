@@ -12,13 +12,13 @@
         <div class="login login-with-news-feed">
             <!-- begin news-feed -->
             <div class="news-feed">
-                <div class="news-image" style="background-image: url({{url('assets/img/images/IMP.jpg')}})"></div>
+                <div class="news-image" style="background-image: url(assets/img/cover/profile-cover.jpg)"></div>
                 <div class="news-caption">
-                    <h4 class="caption-title"><b>Interventions Management Platform</b> </h4>
-                    <p>
-                        
-                    </p>
-                </div>
+                   <h4 class="caption-title"><b style="text-shadow: 4px 4px #000;">Urban and Peri-urban Agriculture Information Management System</b> </h4>
+                   <p>
+                       
+                   </p>
+               </div>
             </div>
             <!-- end news-feed -->
             <!-- begin right-content -->
@@ -26,7 +26,7 @@
                 <!-- begin login-header -->
                 <div class="login-header">
                     <div class="brand">
-                        <img src="{{url('assets/img/images/DA-LOGO-1024x1024.png')}}" width="70" height="70" style="display: inline-block"  /> <b>Interventions Management Platform</b>
+                        <img src="{{url('assets/img/images/DA-LOGO-1024x1024.png')}}" width="70" height="70" style="display: inline-block"  /> <b>UP-AIMS</b>
                     </div>
                     <div class="icon">
                         <i class="fa fa-sign-in"></i>
@@ -47,7 +47,7 @@
                         </div>
                         <hr />
                         <p class="text-center text-grey-darker">
-                            &copy; Department of Agriculture 2021 
+                            &copy; Department of Agriculture 2022 
                         </p>
                     </form>
                 </div>

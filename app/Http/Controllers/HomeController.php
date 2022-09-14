@@ -11,9 +11,9 @@ use Illuminate\Support\Facades\Session;
 class HomeController extends Controller
 {
     public function index(){
-        if(Session::has('username') == true){
+
             return view('home');
-        }
+    
         // return view('home');
     }
 }

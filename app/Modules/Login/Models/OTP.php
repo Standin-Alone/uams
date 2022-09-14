@@ -35,10 +35,10 @@ class OTP extends Model
         // updateOrInsert() = update if the user has already exists and insert if not yet exists, create new data 
         DB::table('user_otp')->updateOrInsert(
             ['user_id'=>$user_id],
-            ['user_id' => $user_id,'otp' => $otp, 'date_created' =>$otp_date_created, 'status' => $otp_status, ]
+            ['user_id' => $user_id, 'otp' => $otp, 'date_created' => $otp_date_created, 'status' => $otp_status]
         );
 
-        return ['otp'=>$otp, 'date_created'=>$otp_date_created];
+        return ['otp' => $otp, 'date_created' => $otp_date_created];
     }
     
     // public function check_otp_expiration($otp_date_created){
@@ -65,14 +65,22 @@ class OTP extends Model
     }
 
     public function get_user_uuid($uuid){
-        $query = DB::table('program_permissions as pp')
-                        ->select('u.user_id', 'u.email', 'u.username', 'u.first_name', 'u.last_name', 'u.ext_name', 'u.password', 'u.password_reset_status', 'r.role')
-                        ->leftJoin('roles as r', 'pp.role_id', '=', 'r.role_id')
-                        ->leftJoin('users as u','pp.user_id', '=', 'u.user_id')
-                        ->where('pp.user_id', '=', $uuid)
-                        ->where('u.user_id', '=', $uuid)
-                        ->groupBy('u.user_id', 'r.role')
+
+        $query = DB::table('user_access as ua')
+                        ->select('ua.user_id', 'u.email', 'u.password', 'u.username', 'u.middle_name', 'u.first_name', 'u.last_name', 'u.ext_name', 'r.role', 'u.status')
+                        ->leftJoin('users as u', 'u.user_id', '=', 'ua.user_id')
+                        ->leftJoin('roles as r', 'r.role_id', '=', 'ua.role_id')
+                        ->where('ua.user_id', '=', $uuid)
                         ->get();
+
+        // $query = DB::table('program_permissions as pp')
+        //                 ->select('u.user_id', 'u.email', 'u.username', 'u.first_name', 'u.last_name', 'u.ext_name', 'u.password', 'u.password_reset_status', 'r.role')
+        //                 ->leftJoin('roles as r', 'pp.role_id', '=', 'r.role_id')
+        //                 ->leftJoin('users as u','pp.user_id', '=', 'u.user_id')
+        //                 ->where('pp.user_id', '=', $uuid)
+        //                 ->where('u.user_id', '=', $uuid)
+        //                 ->groupBy('u.user_id', 'r.role')
+        //                 ->get();
 
         return $query;
     }

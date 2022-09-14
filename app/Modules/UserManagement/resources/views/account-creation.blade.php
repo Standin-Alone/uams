@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8" />
-	<title>Intervention Management Platform</title>
+	<title>Urban Agriculture Management System</title>
 	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
 	<meta content="" name="description" />
 	<meta content="" name="author" />
@@ -67,8 +67,9 @@
 	<div id="page-container" class="fade">
         <div class="register register-with-news-feed overflow-auto">
             <div class="news-feed">
-                <div class="news-image" style="background-image: url({{ url('assets/img/images/IMP.jpg') }})"></div>
+                <div class="news-image" style="background-image: url({{url('assets/img/cover/hvc.jpg)')}}"></div>
                 <div class="news-caption">
+                    <h4 class="caption-title"><b style="text-shadow: 4px 4px #000;">Urban Agriculture Management System</b> </h4>
                 </div>
             </div>
             <div class="right-content">
@@ -98,55 +99,16 @@
                                 <input type="text" name="extention_Name" class="form-control" placeholder="Enter Ext. name ex.(Jr, I, II, III etc.)"  onKeyUP="this.value = this.value.toUpperCase();" />
                             </div>
                         </div>
-
-                        <div class="row m-b-15">                            
-                            <label>Agency <span style="color:red">*</span></label> 
-                            <div class="col-md-12">
-                                <div class="form-check ">
-                                    <input class="form-check-input" type="radio" id="defaultRadio1" name="agency_loc"  value="CO" checked  />
-                                    <label class="form-check-label" for="defaultRadio1">Central Office</label>
-                                </div> &nbsp; &nbsp;                       
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" id="defaultRadio2" name="agency_loc" value="RFO" />
-                                    <label class="form-check-label" for="defaultRadio2">Regional Field Office</label>
-                                </div>       
-                            </div>                       
-                        </div>
                         <div class="row m-b-15">
                             <div class="col-md-12">
                                 <label >Role</label> <span style="color:red">*</span>
-                                <select class="form-control" name="role" id="role" >
-                                    <option selected disabled value="">Select Role</option>    
-                                    @foreach ($get_roles as $item)
-                                        <option  value="{{$item->role_id}}">{{$item->role}}</option>
-                                    @endforeach                                
-                                </select>
+                                <input type="text" name="role" class="form-control"   value = "{{ $check_user->role}}" disabled  />
                             </div>                              
                         </div>
 
-                        <div class="row m-b-15">
-                            <div class="col-md-12">
-                                <label >Agency</label> <span style="color:red">*</span>
-                                <select class="form-control" name="agency" >
-                                    <option selected disabled value="">Select Agency</option>
-                                    @foreach ($get_agency as $item)
-                                        <option  value="{{$item->agency_id}}">{{$item->agency_name}}</option>
-                                    @endforeach
-                                </select>
-                            </div>                              
-                        </div>
+            
 
-                        <div class="row m-b-15">
-                            <div class="col-md-12">
-                                <label >Program</label> <span style="color:red">*</span>
-                                <select class="form-control" name="program" id="program" disabled >
-                                    <option selected disabled value="">Select Program</option>                                    
-                                    @foreach ($get_programs as $item)
-                                        <option value="{{$item->program_id}}">{{$item->shortname}} ({{$item->description}})</option>
-                                    @endforeach
-                                </select>
-                            </div>                              
-                        </div> 
+                    
 
                                            
                         <label class="control-label">Location: <span class="text-danger">*</span></label>
@@ -207,6 +169,18 @@
                                 <input type="password" name="re_enter_password" class="form-control" placeholder="Re-enter Password"  />
                             </div>
                         </div>
+
+
+                        
+                        <div class="row m-b-15">
+                            <div class="col-md-12 checkbox-error">                                
+                                <div class="checkbox checkbox-css">
+                                    <input type="checkbox" id="terms-and-condition" name="terms_and_condition" />
+                                    <label for="terms-and-condition"> I agree to <a href="{{ route('privacy-policy') }}">Privacy Policy</a></label>
+                                </div>
+                            </div>
+                        </div>
+                   
                         <div class="register-buttons">
                             <button type="submit" class="btn btn-success btn-block btn-lg create-account-btn"><i class="fas fa-spinner fa-spin btnloadingIcon1 pull-left m-r-10" style="display: none;"></i> Create Account</button>
                         </div>
@@ -269,6 +243,9 @@
         $(document).ready(function() {
 
             App.init();
+        $.validator.addMethod("Phone", function (value, element) {
+            return this.optional(element) || /^(09|\+639)\d{9}$/i.test(value);
+        }, "Invalid Cellphone Number.");
 
              // filter province
         $("#region").change(function(){
@@ -281,6 +258,11 @@
                     let convertToJson = JSON.parse(data);
                     $("#province").prop('disabled',false);
                     $("#province option").remove();
+                    $("#municipality option").remove();
+                    $("#barangay option").remove();
+                    $("#municipality").append('<option value="" selected disabled>Select Municipality</option>')
+                    $("#barangay").append('<option value="" selected disabled>Select Barangay</option>')
+
                     $("#province").append('<option value="" selected disabled>Select Province</option>')
                     convertToJson.map(item => {
                         $("#province").append('<option value="'+item.prov_code+'">'+item.prov_name+'</option>')
@@ -319,13 +301,16 @@
         // filter municipality
         $("#province").change(function(){
             let value = $("option:selected", this).val();
+            let region = $("#region").val();
             $.ajax({
-                url:'{{route("ac-filter-municipality",["province_code" => ":id"])}}'.replace(':id',value),
+                url:'{{route("ac-filter-municipality",["province_code" => ":id","region_code" => ":region_code"])}}'.replace(':id',value).replace(':region_code',region),
                 type:'get',
                 success:function(data){
                     let convertToJson = JSON.parse(data);
                     $("#municipality").prop('disabled',false);
                     $("#municipality option").remove();
+                    $("#barangay option").remove();
+                    $("#barangay").append('<option value="" selected disabled>Select Barangay</option>')
                     $("#municipality").append('<option value="" selected disabled>Select Municipality</option>')
                     convertToJson.map(item => {
                         $("#municipality").append('<option value="'+item.mun_code+'">'+item.mun_name+'</option>')
@@ -361,75 +346,21 @@
         
 
 
-        // add agency loc function
-        $("input[name='agency_loc']").change(function(){
-            let value = $(this).val();
-            
-            $.ajax({
-                url:'{{route("ac-filter-role",["agency_loc" => ":id"])}}'.replace(':id',value),
-                type:'get',
-                success:function(data){
-                    let convertToJson = JSON.parse(data);
-                    $("#role").prop('disabled',false);
-                    $("#role option").remove();
-                    $("#role").append('<option value="" selected disabled>Select Role</option>')
-                    convertToJson.map(item => {
-                        $("#role").append('<option value="'+item.role_id+'">'+item.role+'</option>')
-                    })
-                }                
-            });
-            
-
-            
-            if(value == 'CO'){
-                    $("#municipality").prop('selectedIndex',0);
-                    $("#barangay").prop('selectedIndex',0);
-                    $("#municipality").prop('disabled','disabled');
-                    $("#barangay").prop('disabled','disabled');
-                    $("#region").val(13).change();
-                    $("#region option").filter(function(){
-                        return this.value != 13;
-                    }).hide()
-
-                    if($("#role option:selected").val() == 1 ){
-                        $("#region option").filter(function(){
-                            return this.value
-                        }).show()
-                    }else{
-                        $("#region option").filter(function(){
-                            return this.value == 13 ;
-                        }).show()
-
-                    }                
-            }else{
-                $("#province").prop('selectedIndex',0);
-                $("#municipality").prop('selectedIndex',0);
-                $("#barangay").prop('selectedIndex',0);
-                $("#province").prop('disabled','disabled');
-                $("#municipality").prop('disabled','disabled');
-                $("#barangay").prop('disabled','disabled');
-                $("#region").val("").change();
-                $("#region option").filter(function(){
-                    return this.value != 13;
-                }).show()
-
-                $("#region option").filter(function(){
-                    return this.value == 13;
-                }).hide()
-
-
-            }
-
-        })
-
-        $("#program").val('{{ $check_program->program_id }}').change();
-
 
         // Create Account Form
         $("#CreateAccountForm").validate({
-                rules:{
+                ignore: [],
+               errorPlacement: function(error, element) {
+                    if (element.is(":checkbox")) {
+                        error.insertAfter('.checkbox');  // custom placement example
+                    } else { 
+                        error.insertAfter(element);   // default placement
+                    }
+                },
+                rules:{                    
                     first_name:'required',
                     last_name:'required',
+                    terms_and_condition:'required',
                     email:{required:true,
                             email:true,
                             remote:{
@@ -439,12 +370,9 @@
                         },
                     contact:{
                         required: true,
-                        number : true,
-                        minlength : 11,
-                        maxlength : 11
+                        Phone:true
                     },
-                    agency:'required',
-                    agency_loc:'required',
+                    
                     role:'required',
                     program: {
                         required: {
@@ -470,6 +398,7 @@
                     }            
                 },
                 messages:{
+                    terms_and_condition:{required:'<div class="text-danger">Please accept first the terms and condition.</div>'},
                     first_name        :{required:'<div class="text-danger">Please enter your first name.</div>'},
                     last_name         :{required:'<div class="text-danger">Please enter your last name.</div>'},
                     email             :{
@@ -480,9 +409,7 @@
                     contact           :{
                                         required:'<div class="text-danger">Please enter your phone number.</div>',
                                         number: '<div class="text-danger">Invalid format.</div>'
-                                       },
-                    agency            :{required:'<div class="text-danger">Please select your agency.</div>'},
-                    agency_loc        :{required:'<div class="text-danger">Please select agency location.</div>'},
+                                       },                    
                     program           :{required:'<div class="text-danger">Please select your program.</div>'},
                     role              :{required:'<div class="text-danger">Please select your role.</div>'},
                     region            :{required:'<div class="text-danger">Please select region.</div>'},
@@ -497,7 +424,7 @@
                 submitHandler:function(){
 
                     Swal.fire({
-                        title: '?',                        
+                        title: 'Do you want to create this account?',                        
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
@@ -520,6 +447,7 @@
                                     console.warn(response);
                                     
 
+                                    if(parses_result['result'] == 'success'){
                                         Swal.fire(
                                             'Message',
                                             parses_result['message'],
@@ -529,6 +457,16 @@
                                             $("#CreateAccountForm")[0].reset();
                                             window.location.href = "{{url('/login') }}";
                                         });
+
+                                    }else{
+                                        Swal.fire(
+                                            'Message',
+                                            parses_result['message'],
+                                            parses_result['result']
+                                        )
+                                        $(".create-account-btn").html('Create Account');
+                                        $(".create-account-btn").prop('disabled',false);
+                                    }
                                    
                                 },
                                 error:function(response){

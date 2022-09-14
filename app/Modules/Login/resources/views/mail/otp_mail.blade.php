@@ -232,7 +232,7 @@
                                                                 <p style="font-size: 14px; line-height: 140%;">
                                                                     <strong><span
                                                                             style="font-size: 24px; line-height: 33.6px;"><span
-                                                                                style="color: #000000; font-size: 24px; line-height: 33.6px;">Interventions Management Platform</span><span></strong>
+                                                                                style="color: #000000; font-size: 24px; line-height: 33.6px;">UP-AIMS</span><span></strong>
                                                                 </p>
                                                             </div>
 
@@ -438,9 +438,7 @@
                                                                 </p>
                                                                 <p style="font-size: 14px; line-height: 140%;">
                                                                     <span style="font-size: 16px; line-height: 22.4px;">
-                                                                        @foreach ($user_data['role'] as $role)
-                                                                            <strong>{{$role}}</strong>
-                                                                        @endforeach
+                                                                            <strong>{{$user_data['role']}}</strong>
                                                                     </span>
                                                                 </p>
                                                             </div>
@@ -608,10 +606,10 @@
                                                         <td style="overflow-wrap:break-word;word-break:break-word;padding:15px;font-family:arial,helvetica,sans-serif;"
                                                             align="left">
                                                             <h4 style="margin: 0px; color: #000000; line-height: 140%; text-align: left; word-wrap: break-word; font-weight: normal; font-family: arial,helvetica,sans-serif; font-size: 14px;">
-                                                                Please note that this OTP will be expired 24 hours after this email is sent.
+                                                                Did you receive this email without having an active request from UP-AIMS to enter a verification code? If so, the security of your UP-AIMS account may be compromised. Please change your password as soon as possible.
                                                               <br>
                                                               <br>
-                                                                Thank you for using Interventions Management Platform!
+                                                                Thank you for using UP-AIMS!
                                                             </h4>
                                                             <br>
                                                         </td>
@@ -726,7 +724,7 @@
 
                                                             <div
                                                                 style="color: #646464; line-height: 140%; text-align: center; word-wrap: break-word;">
-                                                                <p style="font-size: 14px; line-height: 140%;">&copy; 2021, Department of Agriculture</p>
+                                                                <p style="font-size: 14px; line-height: 140%;">&copy; 2022, Department of Agriculture</p>
                                                             </div>
 
                                                         </td>

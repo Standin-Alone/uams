@@ -1,5 +1,5 @@
 @extends('global.base')
-@section('title', "User | Profile")
+@section('title', "USER | PROFILE")
 
 
 
@@ -56,8 +56,8 @@
 @section('content')
 <!-- begin breadcrumb -->
 <ol class="breadcrumb pull-right">
-    <li class="breadcrumb-item"><a href="{{route('main.home')}}">Home</a></li>
-    <li class="breadcrumb-item"><a href="{{route('user.profile')}}">User profile</a></li>
+    <li class="breadcrumb-item"><a href="{{route('main.home')}}">HOME</a></li>
+    <li class="breadcrumb-item"><a href="{{route('user.profile')}}"> USER PROFILE </a></li>
 </ol>
 
 <div class="row mt-5">
@@ -75,18 +75,23 @@
                     {{ csrf_field() }}
                     {{ method_field("PATCH") }}
 
+                    @foreach ($user_info as $ui)
+                        
+                    
                     <span class="error_info"></span>
                     <div class="form-group m-b-15">
                         <label for=""><span class="text-danger">*</span> EMAIL</label>
-                        <input type="email" name="email" class="form-control form-control-lg" placeholder="Email" />
+                        <input type="email" name="email" class="form-control form-control-lg" value="{{ $ui->email }}" placeholder="" />
                         <span class="error_msg"></span>
                     </div>
 
                     <div class="form-group m-b-15">
                         <label for=""><span class="text-danger">*</span> CONTACT NO.</label>
-                        <input type="number" name="contact" class="form-control form-control-lg" placeholder="Contact No." />
+                        <input type="number" name="contact" class="form-control form-control-lg" value="{{ $ui->contact_no }}" placeholder="" />
                         {{-- <span class="error_msg"></span> --}}
                     </div>
+
+                    @endforeach
 
                     <div class="">
                     <button type="submit" id="submit-btn" class="btn btn-success btn-block btn-lg btn-prof" id="btn_info_load" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Updating Info">Save Profile</button>
@@ -110,19 +115,19 @@
                     <span class="error_password"></span>
                     <div class="form-group m-b-15">
                         <label for=""><span class="text-danger">*</span> CURRENT PASSWORD</label>
-                        <input type="password" name="current_password" class="form-control form-control-lg" placeholder="Current Password" />
+                        <input type="password" name="current_password" class="form-control form-control-lg" placeholder="Current Password" autocomplete="false"/>
                         <span class="error_msg"></span>
                     </div>
     
                     <div class="form-group m-b-15">
                         <label for=""><span class="text-danger">*</span> NEW PASSWORD</label>
-                        <input type="password" name="new_password" class="form-control form-control-lg" placeholder="New Password" />
+                        <input type="password" name="new_password" class="form-control form-control-lg" placeholder="New Password" autocomplete="false"/>
                         <span class="error_msg"></span>
                     </div>
     
                     <div class="form-group m-b-15">
                         <label for=""><span class="text-danger">*</span> CONFIRM PASSWORD</label>
-                        <input type="password" name="confirm_password" class="form-control form-control-lg" placeholder="Confirm Password" />
+                        <input type="password" name="confirm_password" class="form-control form-control-lg" placeholder="Confirm Password" autocomplete="false"/>
                         <span class="error_msg"></span>
                     </div>
     
@@ -144,12 +149,23 @@
                 </button> --}}
                 <br>
                 <div class="card-body text-center">
-                  <img class="avatar rounded-circle" src="{{url('assets/img/images/profile/profile-user.png')}}" alt="" /> 
+                  <img class="avatar rounded-circle" src="{{url('assets/img/images/profile/profile-user-black.png')}}" alt="" /> 
                   <h4 class="card-title">{{session()->get('first_name')}} {{session()->get('last_name')}}</h4>
                   <h6 class="card-subtitle mb-2 text-muted">{{session()->get('user_region_name')}}</h6>
                   <p class="card-text"></p>
                 </div>
-                <p></p>        
+                <p></p>  
+                <table id="profile-datatable" class="table table-bordered table-hover mt-5 mb-5 text-center display responsive nowrap" style="width:100%;">
+                    <thead class="table-header">
+                      <tr>
+                        <th scope="col">EMAIL</th>
+                        <th scope="col">CONTACT NO.</th>
+                        <th scope="col">ROLE</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>      
             </div>
         </div>
     </div>

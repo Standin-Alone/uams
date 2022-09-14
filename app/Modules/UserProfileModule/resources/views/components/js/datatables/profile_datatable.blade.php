@@ -11,8 +11,6 @@
                     url: "{{route('user.profile')}}"
                 },
             columns: [
-                    {data: 'title', name: 'title'},
-                    // {data: 'description', name: 'description'},
                     {data: 'email', name: 'email'},
                     {data: 'contact_no', name: 'contact_no'},
                     {data: 'role', name: 'role'},

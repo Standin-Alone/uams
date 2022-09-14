@@ -54,20 +54,35 @@ class Login extends Model
         return $query;
     }
 
-    // get user by email with role
-    public function get_user($email){
-        // $query = DB::select('select * from users where email = ?', [$email]);
+    // // get user by email with role
+    // public function get_user($email){
+    //     // $query = DB::select('select * from users where email = ?', [$email]);
 
-        $query = DB::table('program_permissions as pp')
-                        ->select('u.user_id', 'u.email', 'u.password', 'u.password_reset_status', 'u.username', 'u.first_name', 'u.last_name', 'u.ext_name', 'r.role', 'u.status')
-                        ->leftJoin('roles as r', 'pp.role_id', '=', 'r.role_id')
-                        ->leftJoin('users as u','pp.user_id', '=', 'u.user_id')
+    //     $query = DB::table('program_permissions as pp')
+    //                     ->select('u.user_id', 'u.email', 'u.password', 'u.password_reset_status', 'u.username', 'u.first_name', 'u.last_name', 'u.ext_name', 'r.role', 'u.status')
+    //                     ->leftJoin('roles as r', 'pp.role_id', '=', 'r.role_id')
+    //                     ->leftJoin('users as u','pp.user_id', '=', 'u.user_id')
+    //                     ->where('u.email', '=', $email)
+    //                     ->groupBy('u.user_id', 'r.role')
+    //                     // ->havingRaw('count(*)>1')
+    //                     ->get();
+
+    //     return $query;
+    // }
+
+    // get user by email with role access
+    public function get_user_access_query($email){
+
+        $query = DB::table('user_access as ua')
+                        ->select('ua.user_id', 'u.email', 'u.password', 'u.username', 'u.middle_name', 'u.first_name', 'u.last_name', 'u.ext_name', 'r.role', 'u.status')
+                        ->leftJoin('users as u', 'u.user_id', '=', 'ua.user_id')
+                        ->leftJoin('roles as r', 'r.role_id', '=', 'ua.role_id')
                         ->where('u.email', '=', $email)
-                        ->groupBy('u.user_id', 'r.role')
-                        // ->havingRaw('count(*)>1')
+                        ->where('ua.status', '=', '1')
                         ->get();
 
         return $query;
+
     }
 
     // get user by email
@@ -82,14 +97,12 @@ class Login extends Model
     public function find_user_password($uuid){
         // $query = DB::select('select user_id, email, username, password, password_reset_status from users where user_id = ?', [$uuid]);
 
-        $query = DB::table('program_permissions as pp')
-                        ->select('u.user_id', 'u.email', 'u.username', 'u.first_name', 'u.last_name', 'u.ext_name', 'u.password', 'u.password_reset_status', 'r.role')
-                        ->leftJoin('roles as r', 'pp.role_id', '=', 'r.role_id')
-                        ->leftJoin('users as u','pp.user_id', '=', 'u.user_id')
-                        ->where('pp.user_id', '=', $uuid)
+        $query = DB::table('user_access as ua')
+                        ->select('u.user_id', 'u.email', 'u.username', 'u.first_name', 'u.last_name', 'u.ext_name', 'r.role')
+                        ->leftJoin('users as u', 'u.user_id', '=', 'ua.user_id')
+                        ->leftJoin('roles as r', 'r.role_id', '=', 'ua.role_id')
                         ->where('u.user_id', '=', $uuid)
-                        ->groupBy('u.user_id', 'r.role')
-                        // ->havingRaw('count(*)>1')
+                        ->where('u.status', '=', '1')
                         ->get();
 
         return $query;

@@ -207,7 +207,7 @@ style="margin: 0;padding: 0;-webkit-text-size-adjust: 100%;background-color: #df
                                                                     align="center">
 
                                                                     <img align="center" border="0"
-                                                                        src="{{ $message->embed(public_path('/assets/img/images/image-3.png')) }}"
+                                                                        src="{{$message->embed(public_path('/assets/img/images/DA-LOGO-1024x1024.png'))}}"
                                                                         alt="Calendar" title="Calendar"
                                                                         style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 25%;max-width: 145px;"
                                                                         width="145" />
@@ -233,7 +233,7 @@ style="margin: 0;padding: 0;-webkit-text-size-adjust: 100%;background-color: #df
                                                             <p style="font-size: 14px; line-height: 140%;">
                                                                 <strong><span
                                                                         style="font-size: 24px; line-height: 33.6px;"><span
-                                                                            style="color: #000000; font-size: 24px; line-height: 33.6px;">Interventions Management Platform</span><span></strong>
+                                                                            style="color: #000000; font-size: 24px; line-height: 33.6px;">UP-AIMS</span><span></strong>
                                                             </p>
                                                         </div>
 
@@ -439,9 +439,7 @@ style="margin: 0;padding: 0;-webkit-text-size-adjust: 100%;background-color: #df
                                                           </p>
                                                           <p style="font-size: 14px; line-height: 140%;">
                                                             <span style="font-size: 16px; line-height: 22.4px;">
-                                                                @foreach ($user_data['role'] as $role)
-                                                                    <strong>{{$role}}</strong>
-                                                                @endforeach
+                                                                <strong>{{$user_data['role']}}</strong>
                                                             </span>
                                                           </p>
                                                         </div>
@@ -583,7 +581,7 @@ style="margin: 0;padding: 0;-webkit-text-size-adjust: 100%;background-color: #df
                                                             style="margin: 0px; color: #000000; line-height: 140%; text-align: left; word-wrap: break-word; font-weight: normal; font-family: arial,helvetica,sans-serif; font-size: 14px;">
                                                             You have successfully changed your password!
                                                             <br /><br />
-                                                            Thank you for using Voucher Management System!
+                                                            Thank you for using UP-AIMS!
                                                         </h4>
 
                                                     </td>
@@ -698,7 +696,7 @@ style="margin: 0;padding: 0;-webkit-text-size-adjust: 100%;background-color: #df
 
                                                         <div
                                                             style="color: #646464; line-height: 140%; text-align: center; word-wrap: break-word;">
-                                                            <p style="font-size: 14px; line-height: 140%;">&copy; 2021, Department of Agriculture</p>
+                                                            <p style="font-size: 14px; line-height: 140%;">&copy; 2022, Department of Agriculture</p>
                                                         </div>
 
                                                     </td>
